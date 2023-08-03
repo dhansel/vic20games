@@ -3,7 +3,7 @@
 This repository contains disassemblies of some popular VIC-20 games.
 
 The .asm files were created using the da65 disassembler and together with the included 
-Makefile are set up such that the games can be assembled using th ca65 assembler 
+Makefile are set up such that the games can be assembled using the ca65 assembler 
 (the cc65 compiler suite can be found [here](https://cc65.github.io)). Make sure the 
 ca65/ld65 executables are in your search path.
 
