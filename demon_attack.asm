@@ -1,3 +1,5 @@
+;;; Imagic Software DEMON ATTACK for VIC-20
+
 VIC               := $9000      ; $9000-$900F
 VIA1              := $9110      ; $9110-$911F
 VIA2              := $9120      ; $9120-$912F
