@@ -21,25 +21,33 @@ NMIVEC            := $0318
 
            .segment "CRT1"
         
+        ;; $EB is current game screen:
+        ;;   $00 = intro screen
+        ;;   $01 = options screen
+        ;;   $02 = pre-game/in-game options (F1/F5)
+        ;;   $03 = game running
+        ;;   $04 = game paused (SPACE)
+        ;;   $05 = post-game screen
+
 L2000:     lda    $EB           ; get game mode
            cmp    #$03          ; is game running?
            beq    L202D         ; skip if so
-           cmp    #$04
-           beq    L202D
+           cmp    #$04          ; is game paused?
+           beq    L202D         ; skip if so
            jsr    LAB20
-           lda    $B2           ; button pressed?
-           and    #$20          ; skip if not
-           beq    L202D
-           lda    $EB
-           bne    L202A
+           lda    $B2
+           and    #$20          ; button pressed?
+           beq    L202D         ; skip if not
+           lda    $EB           ; intro screen?
+           bne    L202A         ; skip if not
            lda    #$5D
-           eor    $0127
-           bne    L202A
+           eor    $0127         ; "2", "C=" and "<-" (left arrow) keys pressed?
+           bne    L202A         ; skip if not
            lda    #<LB600
            sta    $7C
            lda    #>LB600
            sta    $7D
-           jsr    LA7EC
+           jsr    LA7EC         ; display "blip" (easter egg)
            rts
 L202A:     jmp    LA0F6
 
