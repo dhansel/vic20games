@@ -4188,14 +4188,14 @@ LB26C:     sta    SCREEN+$100,x
            cpx    #$08
            bne    LB26C
            lda    #$FF
-           sta    $026D
-           sta    $0283
-           sta    $0299
-           sta    $02AF
-           sta    $02C5
-           sta    $02DB
-           sta    $02F1
-           sta    $0307
+           sta    SCREEN+$06D
+           sta    SCREEN+$083
+           sta    SCREEN+$099
+           sta    SCREEN+$0AF
+           sta    SCREEN+$0C5
+           sta    SCREEN+$0DB
+           sta    SCREEN+$0F1
+           sta    SCREEN+$107
            lda    #$00
            sta    VIA1+$3
            sta    VIA1+$2
