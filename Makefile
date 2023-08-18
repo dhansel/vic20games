@@ -1,4 +1,4 @@
-all: jelly_monsters.bin pacman.bin atlantis.bin spiders_of_mars.bin omega_race.bin demon_attack.bin donkey_kong_2000.bin donkey_kong_a000.bin
+all: jelly_monsters.bin pacman.bin atlantis.bin spiders_of_mars.bin omega_race.bin demon_attack.bin galaxian.bin donkey_kong_2000.bin donkey_kong_a000.bin
 
 donkey_kong_2000.bin donkey_kong_a000.bin: donkey_kong.o donkey_kong.lnk
 	ld65 -C donkey_kong.lnk donkey_kong.o
