@@ -1229,19 +1229,19 @@ LA9E5:     lda    #$EF          ; activate row 4
            beq    LA9F9         ; return 1
         
         ;; returns 1 if F5 pressed, otherwise returns 0
-LA9F0:     lda    #$BF          ; activate row 5
+LA9F0:     lda    #$BF          ; activate row 6
            jsr    LACEB         ; and get column
-           and    #$80          ; column 7 active (F3)?
+           and    #$80          ; column 7 active (F5)?
            bne    LAA05         ; return 0 if not active
 LA9F9:     lda    #$01          ; return 1
            rts
 
         ;; returns 1 if F3 pressed, otherwise returns 0
-LA9FC:     lda    #$DF          ; activate row 6
-           jsr    LACEB
-           and    #$80
-           beq    LA9F9
-LAA05:     lda    #$00
+LA9FC:     lda    #$DF          ; activate row 5
+           jsr    LACEB         ; and get column
+           and    #$80          ; column 7 active (F3)?
+           beq    LA9F9         ; return 0 if not active
+LAA05:     lda    #$00          ; return 1
            rts
 
 LAA08:     jsr    LAE93
@@ -1732,7 +1732,12 @@ LADF1:     lda    $2D
            pha
            rts
 
-           .byte  $A5,$0C,$29,$10,$D0,$FA,$60
+        ;; dead code
+LADF8:     lda    $0C
+           and    #$10
+           bne    LADF8
+           rts
+
 LADFF:     lda    VIC+$4
            adc    $0101
            inc    $0103
@@ -1741,9 +1746,8 @@ LADFF:     lda    VIC+$4
         ;; The following instruction may be a bug. The ($FF) addressing
         ;; takes the address low byte from $FF and high byte from $00
         ;; $00 seems to be generally used as temporary storage and $FF is
-        ;; never really initialized. Also Y does not appear to get initialized
-        ;; before this subroutine is called. Maybe this was supposed to be "adc #$FF"?
-        ;; Removing it completely appears to make no difference for the game.
+        ;; never really initialized. Maybe this was supposed to be "adc $FF,y"?
+        ;; Removing it appears to make no difference for the game.
            adc    ($FF),y
            adc    VIC+$4
            sta    $0101
@@ -2211,6 +2215,13 @@ LB553:     .byte  $08,$01,$3C,$66,$66,$3E,$06,$0C
            .byte  $EA,$EA,$EA,$EA,$EA,$FF,$FF,$FF
            .byte  $FF,$FF,$FF,$FF,$FF,$B0,$99,$6E
            .byte  $00
+
+        ;; surprisingly none of the code below this line
+        ;; is ever called (i.e. dead code). The game will still work
+        ;; fine if all of it is removed (change ".if 0 " to ".if 1")
+           .if 0
+           .res   $C000 - *
+           .else
 LB574:     rts
 
            ldx    #$00
@@ -3017,24 +3028,23 @@ LBCA9:     jsr    LA9E5
            txs
            jmp    LA0E3
 
-LBCB7:     jsr    LACDE         ; SPACE pressed?
+LBCB7:     jsr    LACDE
            bcc    LBCF6
            lda    #$20
            sta    VIC+$E
            jsr    LAE93
            jsr    LACD8
 LBCC7:     jsr    LAB70
-           jsr    LACDE         ; SPACE pressed?
+           jsr    LACDE
            bcc    LBCC7
            jsr    LACD8
            jsr    LAE93
            jmp    LAB59
 
-LBCD8:     jsr    LACDE         ; SPACE pressed?
+LBCD8:     jsr    LACDE
            bcs    LBCD8
            rts
 
-        ;; returns with carry set iff SPACE key is pressed
            lda    #$EF
            jsr    LACEB
            and    #$01
@@ -3201,12 +3211,6 @@ LBDF8:     lda    $0C
            inc    $0103
            inc    $0100
            ldy    $0103
-        ;; The following instruction may be a bug. The ($FF) addressing
-        ;; takes the address low byte from $FF and high byte from $00
-        ;; $00 seems to be generally used as temporary storage and $FF is
-        ;; never really initialized. Also Y does not appear to get initialized
-        ;; before this subroutine is called. Maybe this was supposed to be "adc #$FF"?
-        ;; Removing it completely appears to make no difference for the game.
            adc    ($FF),y
            adc    VIC+$4
            sta    $0101
@@ -3414,3 +3418,5 @@ LBF5C:     lda    #$05
            .byte  $41,$52,$45,$42,$49,$4C,$4C,$20
            .byte  $42,$4F,$47,$45,$4E,$52,$45,$49
            .byte  $46,$20,$36
+
+           .endif
