@@ -1117,6 +1117,7 @@ LA941:     cld
            sta    $9B
            rts
 
+        ;; print current score
 LA94B:     lda    #<LBD00
            sta    $9D
            lda    #>LBD00
@@ -1165,7 +1166,7 @@ LA9A2:     lda    $02A0
            ror    a
            tay
            dey
-LA9AD:     lda    ($9D),y
+LA9AD:     lda    ($9D),y       ; bottom row of "0" digit is read from $BDFF
            iny
            sty    $9F
            ldy    #$00
@@ -1188,7 +1189,7 @@ LA9CD:     lda    $02A0
            asl    a
            tay
            dey
-LA9D7:     lda    ($9D),y
+LA9D7:     lda    ($9D),y       ; bottom row of "0" digit is read from $BDFF
            iny
            sty    $9F
            ldy    #$00
@@ -1205,7 +1206,7 @@ LA9D7:     lda    ($9D),y
            adc    #$17
            sta    $96
            ldy    #$FF
-LA9F9:     lda    ($9D),y
+LA9F9:     lda    ($9D),y       ; bottom row of "0" digit is read from $BDFF
            iny
            sty    $9F
            eor    #$FF
@@ -1833,6 +1834,7 @@ LAEDC:     jsr    LA031
 
            .byte  $41,$D0,$C7,$60,$1E
         
+        ;; this data must start at the beginning of a page
 LAF00:     .byte  $FE,$04,$07
            .byte  $08,$09,$07,$08,$20,$13,$03,$0F
            .byte  $12,$05,$FE,$14,$67,$0D,$09,$0E
@@ -1869,6 +1871,8 @@ LAFE8:     .byte  $49,$65
            .byte  $42,$40,$14,$2B,$0B,$40,$1B,$6A
            .byte  $87,$29,$9D,$29,$77,$29,$51,$29
            .byte  $2B,$FF,$FD,$FD,$FD,$FD
+
+        ;; this data must start at the beginning of a page
 LB000:     .byte  $00,$C3
            .byte  $EB,$28,$28,$28,$69,$24,$00,$14
            .byte  $10,$FF,$3C,$00,$C3,$EB,$28,$28
@@ -1884,6 +1888,7 @@ LB041:     .byte  $88,$88,$00,$28,$28,$28,$69,$18,$00
            .byte  $3C,$22,$22,$00,$28,$28,$28,$69
            .byte  $24,$00,$14,$04,$FF,$3C
 LB068:     .byte  $00,$00,$00,$00,$00,$00,$00,$00,$00
+
 LB071:     lda    $B1
            ora    $A6
            beq    LB07C
@@ -2926,17 +2931,18 @@ LBCF0:     lda    #$00
            rts
 
            .byte  $FD,$FD,$FD,$FD,$FD
-LBD00:     .byte  $FC,$CC,$CC
-           .byte  $CC,$FC,$00,$00,$00,$0C,$0C,$0C
-           .byte  $0C,$0C,$00,$00,$00,$FC,$C0,$FC
-           .byte  $0C,$FC,$00,$00,$00,$FC,$0C,$3C
-           .byte  $0C,$FC,$00,$00,$00,$0C,$0C,$FC
-           .byte  $CC,$CC,$00,$00,$00,$FC,$0C,$FC
-           .byte  $C0,$FC,$00,$00,$00,$FC,$CC,$FC
-           .byte  $C0,$C0,$00,$00,$00,$0C,$0C,$0C
-           .byte  $0C,$FC,$00,$00,$00,$FC,$CC,$FC
-           .byte  $CC,$FC,$00,$00,$00,$0C,$0C,$FC
-           .byte  $CC,$FC,$00,$00,$00
+
+LBD00:     .byte  $FC,$CC,$CC,$CC,$FC,$00,$00,$00 ; digit 0
+           .byte  $0C,$0C,$0C,$0C,$0C,$00,$00,$00 ; digit 1
+           .byte  $FC,$C0,$FC,$0C,$FC,$00,$00,$00 ; digit 2
+           .byte  $FC,$0C,$3C,$0C,$FC,$00,$00,$00 ; digit 3
+           .byte  $0C,$0C,$FC,$CC,$CC,$00,$00,$00 ; digit 4
+           .byte  $FC,$0C,$FC,$C0,$FC,$00,$00,$00 ; digit 5
+           .byte  $FC,$CC,$FC,$C0,$C0,$00,$00,$00 ; digit 6
+           .byte  $0C,$0C,$0C,$0C,$FC,$00,$00,$00 ; digit 7
+           .byte  $FC,$CC,$FC,$CC,$FC,$00,$00,$00 ; digit 8
+           .byte  $0C,$0C,$FC,$CC,$FC,$00,$00,$00 ; digit 9
+
 LBD50:     lda    #$00
            tax
 LBD53:     sta    $0110,x
@@ -2970,8 +2976,8 @@ LBD53:     sta    $0110,x
            rts
 
            .byte  $A2,$00,$BD
-LBD90:     .byte  $A5
-           lsr    $1EF0
+LBD90:     lda    $4E
+           beq    LBDB2
            cmp    #$08
            bne    LBD9D
            dec    $70
@@ -3032,8 +3038,10 @@ LBDEA:     lda    $AA
 LBDF8:     lda    $AA
            clc
            adc    #$02
-           bne    LBE00
-           brk
+           bne    LBE00         ; jump always (?)
+        ;; $BDFF must contain $00 because the print score routine (A94B)
+        ;; reads the bottom row of the "0" digit from here
+           .byte  $00
 LBE00:     sta    $9F
            lda    $70
            cmp    $9F
