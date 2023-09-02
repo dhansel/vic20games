@@ -2013,7 +2013,7 @@ L3F22:     .byte  $DD,$06,$E4,$03,$03,$03,$E4,$03
            .byte  $03,$03,$E4,$03,$03,$03,$E4,$01
            .byte  $03,$01,$E4,$01,$03,$01,$E8,$06
            .byte  $E4,$06,$E8,$06,$E4,$06,$DD,$03
-           .byte  $03,$03,$DD,$06,$02,$10,$3F
+           .byte  $03,$03,$DD,$06,$02,<L3F10,>L3F10
 L3F49:     .byte  $E1,$04,$E4,$04,$03,$04,$E8,$04
            .byte  $03,$04,$E4,$04,$E1,$04,$E4,$04
            .byte  $DD,$04,$03,$04,$03,$10,$00
@@ -3804,9 +3804,9 @@ LAF2E:     asl    a
            lda    $95
            rts
 
-LAF39:     lda    #>L3F22
+LAF39:     lda    #$3F
            sta    $0114
-           lda    #<L3F22
+           lda    #$22
            sta    $0115
            lda    #$04
            sta    $99
@@ -3817,29 +3817,29 @@ LAF4B:     ldx    $0115
 LAF51:     cpx    #$00
            bne    LAF6F
            lda    #$00
-           sta    $1541,y
-           sta    $1601,y
-           sta    $16C1,y
-           sta    $1781,y
-           sta    $1841,y
-           sta    $1901,y
-           sta    $19C1,y
+           sta    CHARSET+$541,y
+           sta    CHARSET+$601,y
+           sta    CHARSET+$6C1,y
+           sta    CHARSET+$781,y
+           sta    CHARSET+$841,y
+           sta    CHARSET+$901,y
+           sta    CHARSET+$9C1,y
            jmp    LAF99
 
-LAF6F:     lda    $1540,y
-           sta    $1541,y
-           lda    $1600,y
-           sta    $1601,y
-           lda    $16C0,y
-           sta    $16C1,y
-           lda    $1780,y
-           sta    $1781,y
-           lda    $1840,y
-           sta    $1841,y
-           lda    $1900,y
-           sta    $1901,y
-           lda    $19C0,y
-           sta    $19C1,y
+LAF6F:     lda    CHARSET+$540,y
+           sta    CHARSET+$541,y
+           lda    CHARSET+$600,y
+           sta    CHARSET+$601,y
+           lda    CHARSET+$6C0,y
+           sta    CHARSET+$6C1,y
+           lda    CHARSET+$780,y
+           sta    CHARSET+$781,y
+           lda    CHARSET+$840,y
+           sta    CHARSET+$841,y
+           lda    CHARSET+$900,y
+           sta    CHARSET+$901,y
+           lda    CHARSET+$9C0,y
+           sta    CHARSET+$9C1,y
 LAF99:     dey
            dex
            bpl    LAF51
