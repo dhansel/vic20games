@@ -1891,57 +1891,58 @@ L3D01:     jsr    L209D
            bne    L3D01
            rts
 
+        ;; IRQ routine to play audio
 L3D18:     nop
            lda    #$80
            sta    VIA2+$9
-           ldx    #$03
-L3D20:     lda    $D3,x
+           ldx    #$03          ; iterate over all 4 voices
+L3D20:     lda    $D3,x         ; get music command sequence low for this voice
            sta    $CD
-           lda    $CF,x
+           lda    $CF,x         ; get music command sequence high for this voice
            sta    $CE
-           beq    L3D76
-           dec    $D7,x
-           bne    L3D76
-           ldy    $DB,x
-L3D30:     lda    ($CD),y
+           beq    L3D76         ; if address high is 0 then skip voice
+           dec    $D7,x         ; decrement duration counter for current note
+           bne    L3D76         ; if >0 then wait longer until next command
+           ldy    $DB,x         ; get index into sequence
+L3D30:     lda    ($CD),y       ; get next music command
            iny
-           cmp    #$00
-           bne    L3D41
+           cmp    #$00          ; is it end-of-sequence?
+           bne    L3D41         ; jump if not
            lda    #$00
-           sta    $CF,x
-           sta    VIC+$A,x
-           jmp    L3D76
+           sta    $CF,x         ; set sequence address high to 0 (end-of-sequence)
+           sta    VIC+$A,x      ; turn off voice
+           jmp    L3D76         ; done with this voice
 
-L3D41:     cmp    #$01
-           bne    L3D53
+L3D41:     cmp    #$01          ; "set volume" command?
+           bne    L3D53         ; branch if not
            lda    VIC+$E
            and    #$F0
-           ora    ($CD),y
+           ora    ($CD),y       ; get volume value
            iny
-           sta    VIC+$E
-           jmp    L3D30
+           sta    VIC+$E        ; set volume
+           jmp    L3D30         ; next sequence command
 
-L3D53:     cmp    #$02
-           bne    L3D6C
-           lda    ($CD),y
+L3D53:     cmp    #$02          ; "jump to other sequence" command?
+           bne    L3D6C         ; branch if not
+           lda    ($CD),y       ; get new sequence low byte
            iny
-           sta    $D3,x
-           lda    ($CD),y
+           sta    $D3,x         ; store low byte
+           lda    ($CD),y       ; get new sequence high byte
            iny
-           sta    $CF,x
+           sta    $CF,x         ; store high byte
            lda    #$01
-           sta    $D7,x
+           sta    $D7,x         ; init "duration" counter to immediately process next command
            lda    #$00
-           sta    $DB,x
-           jmp    L3D20
+           sta    $DB,x         ; init index into sequence
+           jmp    L3D20         ; go to sequence
 
-L3D6C:     sta    VIC+$A,x
-           lda    ($CD),y
+L3D6C:     sta    VIC+$A,x      ; otherwise "set note" command => set pitch
+           lda    ($CD),y       ; get duration
            iny
-           sta    $D7,x
+           sta    $D7,x         ; set duration counter
            sty    $DB,x
-L3D76:     dex
-           bpl    L3D20
+L3D76:     dex                  ; next voice
+           bpl    L3D20         ; loop through voices 3-0
            pla
            tay
            pla
@@ -2004,8 +2005,8 @@ L3EBE:     .byte  $E8,$02,$E3,$02,$E7,$02,$E1,$02
 L3EEF:     .byte  $01,$08,$C9,$02,$CF,$02,$D1,$02
            .byte  $D7,$02,$DB,$02,$DF,$02,$E1,$02
            .byte  $E4,$02,$E7,$02,$E8,$02,$EB,$02
-           .byte  $ED,$02,$EF,$02,$F0,$02,$02,$37
-           .byte  $3E
+           .byte  $ED,$02,$EF,$02,$F0,$02
+           .byte  $02,<L3E37,>L3E37
 L3F10:     .byte  $DD,$03,$03,$03,$DD,$01,$03,$01
            .byte  $DD,$01,$03,$01,$E4,$06,$DD,$06
            .byte  $E4,$06
@@ -2032,7 +2033,7 @@ L3FA9:     .byte  $ED,$04,$EF,$04,$F1,$04,$ED,$04
            .byte  $03,$04,$ED,$04,$EF,$04,$F1,$04
            .byte  $ED,$04,$00
 L3FBC:     .byte  $E7,$03,$03,$01,$E3,$03,$03,$01
-           .byte  $DB,$03,$03,$01,$02,$BC,$3F
+           .byte  $DB,$03,$03,$01,$02,<L3FBC,>L3FBC
 L3FCB:     .byte  $00,$B7,$86,$F7,$86,$35,$06,$75
            .byte  $04,$3D,$0C,$75,$04,$31,$04,$35
            .byte  $04,$75,$0C,$35,$04,$46,$D6,$C6
