@@ -1,0 +1,9 @@
+MEMORY {
+    ROM1: start=$6000, size = $2000, file = "pole_position_6000.bin";
+    ROM2: start=$a000, size = $2000, file = "pole_position_a000.bin";
+}
+
+SEGMENTS {
+  CRT1:   load = ROM1, type = ro;
+  CRT2:   load = ROM2, type = ro;
+}
